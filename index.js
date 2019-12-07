@@ -21,7 +21,11 @@ server.get("/", (req, res) => {
 });
 
 server.post("/api/register", (req, res) => {
+  console.log(req)
   let user = req.body;
+
+  console.log(user)
+
   const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
 
@@ -34,19 +38,42 @@ server.post("/api/register", (req, res) => {
     });
 });
 
-server.post("/api/login", validate, (req, res) => {
-  let { username } = req.headers;
 
-  res.status(200).json({ message: `Welcome ${user.username}!` });
+
+server.post('/api/login', (req, res) => {
+  let { username, password } = req.body;
+
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      console.log("sss",user)
+      console.log("password",user.password)
+      console.log("password2",password)
+      if( user && bcrypt.compareSync(password, user.password)) {
+        res.status(200).json({ message: 'Logged In' });
+      } else {
+        res.status(401).json({ message: 'You shall not pass!' });
+      }
+    })
+    .catch(error => {
+      console.log(username, "in catch ")
+      res.status(500).json(error);
+    });
 });
 
-server.get("/api/users", validate, (req, res) => {
+
+server.get('/api/users', validate, (req, res) => {
+  let { username, password } = req.headers;
+
   Users.find()
     .then(users => {
       res.json(users);
     })
     .catch(err => res.send(err));
 });
+
+
+
 
 function validate(req, res, next) {
   const { username, password } = req.headers;
@@ -70,5 +97,9 @@ function validate(req, res, next) {
   }
 }
 
-const port = process.env.PORT || 5000;
+
+
+
+
+const port = process.env.PORT || 5003;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
