@@ -7,7 +7,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 // ----------------------------------
 
-const db = require("./database/dbConfig.js");
+const db = require("./data/dbConfig.js");
 const Users = require("./users/users-model.js");
 
 const server = express();
@@ -17,7 +17,7 @@ server.use(express.json());
 server.use(cors());
 
 server.get("/", (req, res) => {
-  res.send("It's alive!");
+  res.send("Jashele Tillman - Authentication Project");
 });
 
 server.post("/api/register", (req, res) => {
