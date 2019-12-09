@@ -46,7 +46,7 @@ const sessionConfig = {
 ///////////  U S E S
 
 const server = express();
-knexSessionStore(session)
+
 
 server.use(helmet());
 server.use(express.json());
