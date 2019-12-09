@@ -13,26 +13,24 @@ const Users = require("./users/users-model.js");
 
 const server = express();
 
-
 //  S E S S I O N * C O N F I G
 const sessionConfig = {
   name: "monkey", // default "sid", if no name
-  
+
   secret: "keep it secret, keep it safe!", //used in order to encrypt/decrypt cookie
-  
+
   cookie: {
     maxAge: 1000 * 30, // how long is the session going to be valid in milliseconds; after that it will be considered expired
-  
+
     secure: false, // can I send the cookie over an unencrypted connection (http) ? ; should be true in production
-  
-    httpOnly: true, // this cookie cannot be accessed from javascript ; no javascript code on the client will ever get access to the cookies
+
+    httpOnly: true // this cookie cannot be accessed from javascript ; no javascript code on the client will ever get access to the cookies
   },
   resave: false, // do we want to re-create a session even though it hasn't changed? ; false = if the cookie or the session has not changed, don’t recreate it, keep the one that was there.
   saveUninitialized: false // GDPR laws against setting cookies automatically
- };
+};
 
- ///////////
- 
+///////////
 
 server.use(helmet());
 server.use(express.json());
@@ -68,10 +66,13 @@ server.post("/api/login", (req, res) => {
   Users.findBy({ username })
     .first()
     .then(user => {
-      console.log("sss", user);
-      console.log("password", user.password);
-      console.log("password2", password);
+      // console.log("sss", user);
+      // console.log("password", user.password);
+      // console.log("password2", password);
       if (user && bcrypt.compareSync(password, user.password)) {
+        // saving some info about the user of session, save it & send cookie with that user info
+        req.session.user = user;
+
         res.status(200).json({ message: "Logged In" });
       } else {
         res.status(401).json({ message: "You shall not pass!" });
@@ -94,24 +95,31 @@ server.get("/api/users", validate, (req, res) => {
 });
 
 function validate(req, res, next) {
-  const { username, password } = req.headers;
+  // const { username, password } = req.headers;
 
-  if (username && password) {
-    Users.findBy({ username })
-      .first()
-      .then(user => {
-        if (user && bcrypt.compareSync(password, user.password)) {
-          next();
-        } else {
-          res.status(401).json({ message: "Invalid credentials" });
-        }
-      })
+  // refactored to modify make use of the information stored in the session //
 
-      .catch(err => {
-        res.status(500).json({ message: "unexpected error" });
-      });
+  if (req.session && req.session.user ) {
+    next();
+  // if (username && password) {
+    // Users.findBy({ username })
+    //   .first()
+    //   .then(user => {
+    //     if (user && bcrypt.compareSync(password, user.password)) {
+    //       next();
+    //     } else {
+    //       res.status(401).json({ message: "Invalid credentials" });
+    //     }
+    //   })
+
+    //   .catch(err => {
+    //     res.status(500).json({ message: "unexpected error" });
+    //   });
+
   } else {
-    res.status(400).json({ message: "no credentials provided" });
+    //if nothing there:
+    res.status(401).json({ message: 'You shall not pass!'})
+    // res.status(400).json({ message: "no credentials provided" });
   }
 }
 
