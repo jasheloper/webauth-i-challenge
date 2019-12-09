@@ -5,7 +5,6 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 
-
 const bcrypt = require("bcryptjs");
 
 const Users = require("./users/users-model.js");
@@ -46,7 +45,6 @@ const sessionConfig = {
 ///////////  U S E S
 
 const server = express();
-
 
 server.use(helmet());
 server.use(express.json());
@@ -113,8 +111,9 @@ server.get("/api/users", validate, (req, res) => {
 });
 
 // Delete Endpoint
-server.delete("/logout", (req, res) => {
+server.delete("/api/logout", (req, res) => {
   if (req.session) {
+    console.log(req.session);
     req.session.destroy(err => {
       if (err) {
         res.status(400).send("unable to logout...");
@@ -126,7 +125,6 @@ server.delete("/logout", (req, res) => {
     res.end();
   }
 });
-// doesn't even work
 
 //  R E S R I C T E D * M I D D L E W A R E
 
@@ -159,6 +157,6 @@ function validate(req, res, next) {
 }
 
 ///////////////////  P O R T
-const port = process.env.PORT || 5003;
+const port = process.env.PORT || 5004;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 ///////////////////
