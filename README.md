@@ -1,4 +1,4 @@
-# Authentication Project
+# Authentication Project - Jashele Tillman 
 
 ## Topics
 
